@@ -1,8 +1,7 @@
 angular.module('contosoUniversityApp')
   .factory('coursesFactory', ['$http', function($http) {
 
-    //var urlBase = '/api/courses';
-    var urlBase = 'http://localhost:41787/api/courses';
+    var urlBase = 'http://localhost/api/courses';
     var coursesFactory = {};
 
     coursesFactory.getCourses = function () {

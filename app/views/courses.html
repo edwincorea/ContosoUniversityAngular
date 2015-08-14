@@ -1,6 +1,12 @@
 <div class="row marketing">
   <h4>Courses</h4>
-  <p>
-    <div ng-repeat="course in courses">Course: {{course.Title}} - Credits: {{course.Credits}} - Department: {{course.DepartmentName}}</div>
-  </p>
+  <!--
+  <div ng-repeat="course in courses">Course: {{course.Title}} - Credits: {{course.Credits}} - Department: {{course.DepartmentName}}</div>
+  <div ng-controller="CoursesCtrl">
+    <div ui-grid="{ data: courses }" class="angularUIGrid"></div>
+  </div>
+  -->
+  <div ng-controller="CoursesCtrl">
+    <div ui-grid="{ data: courses }" class="angularUIGrid"></div>
+  </div>
 </div>
