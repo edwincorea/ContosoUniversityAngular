@@ -12,7 +12,7 @@ angular.module('contosoUniversityApp')
     function ($scope, coursesFactory) {
 
       $scope.status;
-      $scope.courses;
+      $scope.courses = [];
 
       getCourses();
 
