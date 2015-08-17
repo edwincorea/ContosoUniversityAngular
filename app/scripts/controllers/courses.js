@@ -69,56 +69,74 @@ angular.module('contosoUniversityApp')
           });
       }
 
-      $scope.getCourse = function (id) {
-        coursesService.getCourse(id)
+      $scope.addData= function () {
+        var course = {
+          Title: $('course').val(),
+          Credits: $('credits').val(),
+          DepartmentID: $('department').val()
+        };
+
+        coursesService.insertCourse(course)
           .then(function(data) {
-            return data;
+            $scope.gridOptions.data = data;
           }, function(error) {
-            $scope.status = 'Course was not found!';
+            $scope.status = 'Unable to load course data: ' + error;
           })
           .finally(function() {
             $scope.loading = false;
           });
+      }
+
+      $scope.getCourse = function (id) {
+        var promise = coursesService.getCourse(id)
+        promise.then(function(data) {
+          return data;
+        }, function(error) {
+          $scope.status = 'Course was not found!';
+        }).finally(function() {
+          $scope.loading = false;
+        });
       };
 
       $scope.insertCourse = function (course) {
-        coursesService.insertCourse(course)
-          .then(function(data) {
-            $scope.status = 'Inserted Course! Refreshing course list.';
-            $scope.courses.push(course);
-          }, function(error) {
-            $scope.status = 'Unable to insert course: ' + msg + " " + code;
-          })
-          .finally(function() {
-            $scope.loading = false;
-          });
+        var promise = coursesService.insertCourse(course);
+        promise.then(function(data) {
+          $scope.status = 'Inserted Course! Refreshing course list.';
+          $scope.courses.push(course);
+        }, function(error) {
+          $scope.status = 'Unable to insert course: ' + msg + " " + code;
+        }).finally(function() {
+          $scope.loading = false;
+        });
+
+        return promise;
       };
 
       $scope.updateCourse = function (id, course) {
         var promise = coursesService.updateCourse(id, course);
-
         promise.then(function(data) {
           $scope.status = 'Updated Course! Refreshing course list.';
           $scope.courses.push(course);
         }, function(error) {
           $scope.status = 'Unable to update course: ' + error.message;
-        })
-          .finally(function() {
-            $scope.loading = false;
-          });
+        }).finally(function() {
+          $scope.loading = false;
+        });
+
         return promise;
       };
 
       $scope.deleteCourse = function (id) {
-        coursesService.deleteCourse(id)
-          .then(function(data) {
-            $scope.status = 'Deleted Course! Refreshing course list.';
-            $scope.courses.push(course);
-          }, function(error) {
-            $scope.status = 'Unable to delete course: ' + error.message;
-          })
-          .finally(function() {
-            $scope.loading = false;
-          });
+        var promise = coursesService.deleteCourse(id);
+        promise.then(function(data) {
+          $scope.status = 'Deleted Course! Refreshing course list.';
+          $scope.courses.push(course);
+        }, function(error) {
+          $scope.status = 'Unable to delete course: ' + error.message;
+        }).finally(function() {
+          $scope.loading = false;
+        });
+
+        return promise;
       };
     }]);

@@ -8,6 +8,15 @@
   -->
   <div ng-controller="CoursesCtrl">
     <img ng-show="loading" src="images/ajax-loader.gif" />
+    <div>
+      <div class="row">
+        <div class="col-sm-3">Course: <label for="course"></label><input type="text" name="course" id="course"/></div>
+        <div class="col-sm-3">Credits: <label for="credits"></label><input type="text" name="credits" id="credits"/></div>
+        <div class="col-sm-3">Department: <label for="department"></label><input type="text" name="department" id="department"/></div>
+        <div class="col-sm-3"><button type="button" id="addData" class="btn btn-success" ng-click="$scope.addData()">Add Data</button></div>
+      </div>
+    </div>
+
     <div ui-grid="gridOptions" ui-grid-edit ui-grid-row-edit ui-grid-pinning
          ui-grid-pagination ui-grid-cellnav class="angularUIGrid">
     </div>
