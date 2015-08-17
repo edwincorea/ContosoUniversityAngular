@@ -16,7 +16,12 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngTouch',
-    'ui.grid'
+    'ui.grid',
+    'ui.grid.edit',
+    'ui.grid.rowEdit',
+    'ui.grid.cellNav',
+    'ui.grid.pinning',
+    'ui.grid.pagination'
   ])
   .config(function ($routeProvider) {
     $routeProvider

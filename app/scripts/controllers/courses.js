@@ -8,75 +8,117 @@
  * Controller of the contosoUniversityApp
  */
 angular.module('contosoUniversityApp')
-  .controller('CoursesCtrl', ['$scope', 'coursesFactory',
-    function ($scope, coursesFactory) {
+  .controller('CoursesCtrl', ['$scope', 'coursesService',
+    function ($scope, coursesService) {
 
-      $scope.status;
-      $scope.courses = [];
+      $scope.status='';
+      $scope.courses=[];
+      $scope.loading = true;
 
       getCourses();
 
+      //UI Grid configuration
+      //Column definitions
+      $scope.columns = [
+        { name: 'id', visible: false },
+        { name: 'course', displayName: 'Course' },
+        { name: 'credits', displayName: 'Credits' },
+        { name: 'departmentId', visible: false },
+        { name: 'department', displayName: 'Department', enableCellEdit: false}
+      ];
+
+      //Options for displaying the grid
+      $scope.gridOptions = {
+        data: $scope.courses,
+        paginationPageSizes: [25, 50, 75],
+        paginationPageSize: 5,
+        enableSorting: true,
+        enableGridMenu: true,
+        enableFiltering: true,
+        enableColumnResize: true,
+        enableCellEditOnFocus: false,
+        columnDefs: $scope.columns,
+        onRegisterApi: function (gridApi) {
+          //set gridApi on scope
+          $scope.gridApi = gridApi;
+          gridApi.rowEdit.on.saveRow($scope, $scope.saveRow);
+        }
+      };
+
+      $scope.saveRow = function( rowEntity ) {
+        var course = {
+          CourseID: rowEntity.id,
+          Title: rowEntity.course,
+          Credits: rowEntity.credits,
+          DepartmentID: rowEntity.departmentId
+        };
+        var promise = $scope.updateCourse(rowEntity.id, course);
+        $scope.gridApi.rowEdit.setSavePromise(rowEntity, promise);
+      };
+
+      //REST API Calls
       function getCourses() {
-        coursesFactory.getCourses()
-          .success(function (courses) {
-            $scope.courses = courses;
+        coursesService.getCourses()
+          .then(function(data) {
+            $scope.gridOptions.data = data;
+          }, function(error) {
+            $scope.status = 'Unable to load course data: ' + error;
           })
-          .error(function (error) {
-            $scope.status = 'Unable to load course data: ' + error.message;
+          .finally(function() {
+            $scope.loading = false;
           });
       }
 
-      $scope.insertCourse = function () {
-        //Fake course data
-        var course = {
-          ID: 10,
-          FirstName: 'JoJo',
-          LastName: 'Pikidily'
-        };
-        coursesFactory.insertCourse(course)
-          .success(function () {
-            $scope.status = 'Inserted Course! Refreshing course list.';
-            $scope.courses.push(course);
-          }).
-          error(function(error) {
-            $scope.status = 'Unable to insert course: ' + error.message;
+      $scope.getCourse = function (id) {
+        coursesService.getCourse(id)
+          .then(function(data) {
+            return data;
+          }, function(error) {
+            $scope.status = 'Course was not found!';
+          })
+          .finally(function() {
+            $scope.loading = false;
           });
       };
 
-      $scope.updateCourse = function (id) {
-        var course;
-        for (var i = 0; i < $scope.courses.length; i++) {
-          var currCourse = $scope.courses[i];
-          if (currCourse.ID === id) {
-            course = currCourse;
-            break;
-          }
-        }
-
-        coursesFactory.updateCourse(course)
-          .success(function () {
-            $scope.status = 'Updated Course! Refreshing course list.';
+      $scope.insertCourse = function (course) {
+        coursesService.insertCourse(course)
+          .then(function(data) {
+            $scope.status = 'Inserted Course! Refreshing course list.';
+            $scope.courses.push(course);
+          }, function(error) {
+            $scope.status = 'Unable to insert course: ' + msg + " " + code;
           })
-          .error(function (error) {
-            $scope.status = 'Unable to update course: ' + error.message;
+          .finally(function() {
+            $scope.loading = false;
           });
+      };
+
+      $scope.updateCourse = function (id, course) {
+        var promise = coursesService.updateCourse(id, course);
+
+        promise.then(function(data) {
+          $scope.status = 'Updated Course! Refreshing course list.';
+          $scope.courses.push(course);
+        }, function(error) {
+          $scope.status = 'Unable to update course: ' + error.message;
+        })
+          .finally(function() {
+            $scope.loading = false;
+          });
+        return promise;
       };
 
       $scope.deleteCourse = function (id) {
-        coursesFactory.deleteCourse(id)
-          .success(function () {
+        coursesService.deleteCourse(id)
+          .then(function(data) {
             $scope.status = 'Deleted Course! Refreshing course list.';
-            for (var i = 0; i < $scope.courses.length; i++) {
-              var course = $scope.courses[i];
-              if (course.ID === id) {
-                $scope.courses.splice(i, 1);
-                break;
-              }
-            }
-            $scope.courses = null;
-          })
-          .error(function (error) {
+            $scope.courses.push(course);
+          }, function(error) {
             $scope.status = 'Unable to delete course: ' + error.message;
+          })
+          .finally(function() {
+            $scope.loading = false;
           });
       };
     }]);

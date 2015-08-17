@@ -7,6 +7,10 @@
   </div>
   -->
   <div ng-controller="CoursesCtrl">
-    <div ui-grid="{ data: courses }" class="angularUIGrid"></div>
+    <img ng-show="loading" src="images/ajax-loader.gif" />
+    <div ui-grid="gridOptions" ui-grid-edit ui-grid-row-edit ui-grid-pinning
+         ui-grid-pagination ui-grid-cellnav class="angularUIGrid">
+    </div>
   </div>
+
 </div>
