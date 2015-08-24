@@ -8,14 +8,17 @@
  * Controller of the contosoUniversityApp
  */
 angular.module('contosoUniversityApp')
-  .controller('CoursesCtrl', ['$scope', 'coursesService',
-    function ($scope, coursesService) {
+  .controller('CoursesCtrl', ['$scope', 'coursesService', 'departmentsService',
+    function ($scope, coursesService, departmentsService) {
 
       $scope.status='';
       $scope.courses=[];
+      $scope.departments=[];
       $scope.loading = true;
 
+      // Initialize controls
       getCourses();
+      getDepartments();
 
       //UI Grid configuration
       //Column definitions
@@ -69,26 +72,28 @@ angular.module('contosoUniversityApp')
           });
       }
 
-      $scope.addData= function () {
-        var course = {
-          Title: $('course').val(),
-          Credits: $('credits').val(),
-          DepartmentID: $('department').val()
-        };
-
-        coursesService.insertCourse(course)
+      function getDepartments() {
+        departmentsService.getDepartments()
           .then(function(data) {
-            $scope.gridOptions.data = data;
+            $scope.departments = data;
+            //$scope.selectedItem = $scope.departments[0];
           }, function(error) {
             $scope.status = 'Unable to load course data: ' + error;
-          })
-          .finally(function() {
-            $scope.loading = false;
           });
       }
 
+      $scope.addData= function () {
+        var course = {
+          Title: $('#course').val(),
+          Credits: parseInt($('#credits').val()),
+          DepartmentID: parseInt($('#department').val())
+        };
+
+        $scope.insertCourse(course);
+      };
+
       $scope.getCourse = function (id) {
-        var promise = coursesService.getCourse(id)
+        var promise = coursesService.getCourse(id);
         promise.then(function(data) {
           return data;
         }, function(error) {
@@ -104,7 +109,7 @@ angular.module('contosoUniversityApp')
           $scope.status = 'Inserted Course! Refreshing course list.';
           $scope.courses.push(course);
         }, function(error) {
-          $scope.status = 'Unable to insert course: ' + msg + " " + code;
+          $scope.status = 'Unable to insert course: ' + error.message;
         }).finally(function() {
           $scope.loading = false;
         });
